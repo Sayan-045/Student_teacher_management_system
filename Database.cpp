@@ -1,294 +1,14 @@
-
-// #include "Database.h"
-// #include <iostream>
-
-// Database::Database() {
-//     sqlite3_open("portal.db", &DB);
-
-//     execute("CREATE TABLE IF NOT EXISTS students(id TEXT PRIMARY KEY, name TEXT);");
-
-//     execute("CREATE TABLE IF NOT EXISTS courses(course_id TEXT PRIMARY KEY, total_classes INT);");
-
-//     execute("CREATE TABLE IF NOT EXISTS enrollments(student_id TEXT, course_id TEXT);");
-
-//     execute("CREATE TABLE IF NOT EXISTS attendance(student_id TEXT, course_id TEXT, day INT, present INT);");
-
-//     execute("CREATE TABLE IF NOT EXISTS marks(student_id TEXT, course_id TEXT, marks INT);");
-// }
-
-// Database::~Database() {
-//     sqlite3_close(DB);
-// }
-
-// bool Database::execute(const std::string& sql) {
-//     char* errMsg;
-//     if (sqlite3_exec(DB, sql.c_str(), NULL, NULL, &errMsg) != SQLITE_OK) {
-//         std::cout << "SQL Error: " << errMsg << "\n";
-//         sqlite3_free(errMsg);
-//         return false;
-//     }
-//     return true;
-// }
-
-// // ---------------- USER ----------------
-
-// bool Database::userExists(const std::string& table, const std::string& id) {
-//     std::string sql = "SELECT * FROM " + table + " WHERE id='" + id + "';";
-//     sqlite3_stmt* stmt;
-
-//     sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, NULL);
-//     bool exists = (sqlite3_step(stmt) == SQLITE_ROW);
-//     sqlite3_finalize(stmt);
-
-//     return exists;
-// }
-
-// void Database::insertUser(const std::string& table, const std::string& id, const std::string& name) {
-//     execute("INSERT INTO " + table + " VALUES('" + id + "','" + name + "');");
-// }
-
-// // ---------------- COURSE ----------------
-
-// bool Database::courseExists(const std::string& course_id) {
-//     std::string sql = "SELECT * FROM courses WHERE course_id='" + course_id + "';";
-//     sqlite3_stmt* stmt;
-
-//     sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, NULL);
-//     bool exists = (sqlite3_step(stmt) == SQLITE_ROW);
-//     sqlite3_finalize(stmt);
-
-//     return exists;
-// }
-
-// void Database::addCourse(const std::string& course_id, int total_classes) {
-//     if (courseExists(course_id)) {
-//         std::cout << "Course already exists!\n";
-//         return;
-//     }
-
-//     execute("INSERT INTO courses VALUES('" + course_id + "'," + std::to_string(total_classes) + ");");
-//     std::cout << "Course created!\n";
-// }
-
-// // ---------------- ENROLL ----------------
-
-// void Database::enrollStudent(const std::string& student_id, const std::string& course_id) {
-//     if (!courseExists(course_id)) {
-//         std::cout << "Course does not exist!\n";
-//         return;
-//     }
-
-//     execute("INSERT INTO enrollments VALUES('" + student_id + "','" + course_id + "');");
-//     std::cout << "Enrolled successfully!\n";
-// }
-
-// // ---------------- ATTENDANCE ----------------
-
-// void Database::markAttendance(const std::string& course_id, int day) {
-//     std::string sql = "SELECT student_id FROM enrollments WHERE course_id='" + course_id + "';";
-//     sqlite3_stmt* stmt;
-
-//     sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, NULL);
-
-//     while (sqlite3_step(stmt) == SQLITE_ROW) {
-//         std::string sid = (const char*)sqlite3_column_text(stmt, 0);
-
-//         int p;
-//         std::cout << "Student " << sid << " (1=Present,0=Absent): ";
-//         std::cin >> p;
-
-//         execute("INSERT INTO attendance VALUES('" + sid + "','" + course_id + "'," +
-//                 std::to_string(day) + "," + std::to_string(p) + ");");
-//     }
-
-//     sqlite3_finalize(stmt);
-// }
-
-// // ---------------- MARKS ----------------
-
-// void Database::addMarks(const std::string& course_id) {
-//     std::string sql = "SELECT student_id FROM enrollments WHERE course_id='" + course_id + "';";
-//     sqlite3_stmt* stmt;
-
-//     sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, NULL);
-
-//     while (sqlite3_step(stmt) == SQLITE_ROW) {
-//         std::string sid = (const char*)sqlite3_column_text(stmt, 0);
-
-//         int m;
-//         std::cout << "Marks for " << sid << ": ";
-//         std::cin >> m;
-
-//         execute("INSERT OR REPLACE INTO marks VALUES('" + sid + "','" + course_id + "'," +
-//                 std::to_string(m) + ");");
-//     }
-
-//     sqlite3_finalize(stmt);
-// }
-
-// // ---------------- VIEW STUDENTS ----------------
-
-// void Database::viewStudentsInCourse(const std::string& course_id) {
-//     std::string sql =
-//     "SELECT s.id, s.name FROM students s "
-//     "JOIN enrollments e ON s.id = e.student_id "
-//     "WHERE e.course_id='" + course_id + "';";
-
-//     sqlite3_stmt* stmt;
-//     sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, NULL);
-
-//     std::cout << "\n--- Students in Course ---\n";
-
-//     bool found = false;
-
-//     while (sqlite3_step(stmt) == SQLITE_ROW) {
-//         found = true;
-//         std::cout << "ID: " << sqlite3_column_text(stmt, 0)
-//                   << " Name: " << sqlite3_column_text(stmt, 1) << "\n";
-//     }
-
-//     if (!found) std::cout << "No students found!\n";
-
-//     sqlite3_finalize(stmt);
-// }
-
-// // ---------------- STUDENT ATTENDANCE ----------------
-
-// void Database::viewStudentAttendance(const std::string& student_id) {
-//     std::string sql =
-//     "SELECT c.course_id, c.total_classes, COUNT(a.present), SUM(a.present) "
-//     "FROM courses c "
-//     "LEFT JOIN attendance a ON c.course_id = a.course_id AND a.student_id='" + student_id + "' "
-//     "JOIN enrollments e ON c.course_id = e.course_id "
-//     "WHERE e.student_id='" + student_id + "' "
-//     "GROUP BY c.course_id;";
-
-//     sqlite3_stmt* stmt;
-//     sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, NULL);
-
-//     std::cout << "\n--- Attendance ---\n";
-
-//     while (sqlite3_step(stmt) == SQLITE_ROW) {
-//         std::string course = (const char*)sqlite3_column_text(stmt, 0);
-
-//         int total_classes = sqlite3_column_int(stmt, 1);
-//         int total_taken = sqlite3_column_int(stmt, 2);
-//         int present = sqlite3_column_int(stmt, 3);
-
-//         float percent = (total_taken == 0) ? 0 : (present * 100.0 / total_taken);
-
-//         int needed = 0;
-//         while (true) {
-//             float new_percent = ((present + needed) * 100.0) / (total_taken + needed);
-//             if (new_percent >= 75.0 || (total_taken + needed) >= total_classes) break;
-//             needed++;
-//         }
-
-//         std::cout << "Course: " << course
-//                   << " | Attendance: " << percent
-//                   << "% | Need " << needed << " classes for 75%\n";
-//     }
-
-//     sqlite3_finalize(stmt);
-// }
-
-// // ---------------- REPORT CARD ----------------
-
-// void Database::generateReportCard(const std::string& student_id) {
-//     std::string sql =
-//     "SELECT e.course_id, COUNT(a.present), SUM(a.present), m.marks "
-//     "FROM enrollments e "
-//     "LEFT JOIN attendance a ON e.student_id=a.student_id AND e.course_id=a.course_id "
-//     "LEFT JOIN marks m ON e.student_id=m.student_id AND e.course_id=m.course_id "
-//     "WHERE e.student_id='" + student_id + "' GROUP BY e.course_id;";
-
-//     sqlite3_stmt* stmt;
-//     sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, NULL);
-
-//     std::cout << "\n--- Report Card ---\n";
-
-//     while (sqlite3_step(stmt) == SQLITE_ROW) {
-//         std::string c = (const char*)sqlite3_column_text(stmt, 0);
-//         int total = sqlite3_column_int(stmt, 1);
-//         int present = sqlite3_column_int(stmt, 2);
-//         int marks = sqlite3_column_int(stmt, 3);
-
-//         float percent = (total == 0) ? 0 : present * 100.0 / total;
-
-//         char grade = 'D';
-//         if (marks >= 90) grade = 'A';
-//         else if (marks >= 75) grade = 'B';
-//         else if (marks >= 60) grade = 'C';
-
-//         std::cout << c
-//                   << " | Attendance: " << percent
-//                   << "% | Marks: " << marks
-//                   << " | Grade: " << grade << "\n";
-//     }
-
-//     sqlite3_finalize(stmt);
-// }
-
-// // ---------------- COURSE REPORT ----------------
-
-// void Database::viewCourseReport(const std::string& course_id) {
-//     std::string sql =
-//     "SELECT s.id, s.name, COUNT(a.present), SUM(a.present), m.marks "
-//     "FROM enrollments e "
-//     "JOIN students s ON e.student_id = s.id "
-//     "LEFT JOIN attendance a ON e.student_id = a.student_id AND e.course_id = a.course_id "
-//     "LEFT JOIN marks m ON e.student_id = m.student_id AND e.course_id = m.course_id "
-//     "WHERE e.course_id='" + course_id + "' GROUP BY s.id;";
-
-//     sqlite3_stmt* stmt;
-//     sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, NULL);
-
-//     std::cout << "\n--- Course Report ---\n";
-
-//     while (sqlite3_step(stmt) == SQLITE_ROW) {
-//         std::string id = (const char*)sqlite3_column_text(stmt, 0);
-//         std::string name = (const char*)sqlite3_column_text(stmt, 1);
-
-//         int total = sqlite3_column_int(stmt, 2);
-//         int present = sqlite3_column_int(stmt, 3);
-//         int marks = sqlite3_column_int(stmt, 4);
-
-//         float percent = (total == 0) ? 0 : present * 100.0 / total;
-
-//         char grade = 'D';
-//         if (marks >= 90) grade = 'A';
-//         else if (marks >= 75) grade = 'B';
-//         else if (marks >= 60) grade = 'C';
-
-//         std::cout << "ID: " << id
-//                   << " Name: " << name
-//                   << " | Present: " << present
-//                   << " | Total: " << total
-//                   << " | %: " << percent
-//                   << " | Marks: " << marks
-//                   << " | Grade: " << grade << "\n";
-//     }
-
-//     sqlite3_finalize(stmt);
-// }
-
-
-
-
 #include "Database.h"
 #include <iostream>
+#include <QInputDialog>
+#include <QString>
 
 Database::Database() {
     sqlite3_open("portal.db", &DB);
-
     execute("CREATE TABLE IF NOT EXISTS students(id TEXT PRIMARY KEY, name TEXT);");
-
     execute("CREATE TABLE IF NOT EXISTS courses(course_id TEXT PRIMARY KEY, total_classes INT);");
-
     execute("CREATE TABLE IF NOT EXISTS enrollments(student_id TEXT, course_id TEXT);");
-
     execute("CREATE TABLE IF NOT EXISTS attendance(student_id TEXT, course_id TEXT, day INT, present INT);");
-
     execute("CREATE TABLE IF NOT EXISTS marks(student_id TEXT, course_id TEXT, marks INT);");
 }
 
@@ -296,28 +16,21 @@ Database::~Database() {
     sqlite3_close(DB);
 }
 
-// ---------------- BASIC EXEC ----------------
-
 bool Database::execute(const std::string& sql) {
     char* errMsg;
     if (sqlite3_exec(DB, sql.c_str(), NULL, NULL, &errMsg) != SQLITE_OK) {
-        std::cout << "SQL Error: " << errMsg << "\n";
         sqlite3_free(errMsg);
         return false;
     }
     return true;
 }
 
-// ---------------- USER ----------------
-
 bool Database::userExists(const std::string& table, const std::string& id) {
     std::string sql = "SELECT * FROM " + table + " WHERE id='" + id + "';";
     sqlite3_stmt* stmt;
-
     sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, NULL);
     bool exists = (sqlite3_step(stmt) == SQLITE_ROW);
     sqlite3_finalize(stmt);
-
     return exists;
 }
 
@@ -325,136 +38,88 @@ void Database::insertUser(const std::string& table, const std::string& id, const
     execute("INSERT INTO " + table + " VALUES('" + id + "','" + name + "');");
 }
 
-// ---------------- COURSE ----------------
-
 bool Database::courseExists(const std::string& course_id) {
     std::string sql = "SELECT * FROM courses WHERE course_id='" + course_id + "';";
     sqlite3_stmt* stmt;
-
     sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, NULL);
     bool exists = (sqlite3_step(stmt) == SQLITE_ROW);
     sqlite3_finalize(stmt);
-
     return exists;
 }
 
 void Database::addCourse(const std::string& course_id, int total_classes) {
     if (courseExists(course_id)) return;
-
     execute("INSERT INTO courses VALUES('" + course_id + "'," + std::to_string(total_classes) + ");");
 }
 
-// ---------------- ENROLL ----------------
-
 void Database::enrollStudent(const std::string& student_id, const std::string& course_id) {
     if (!courseExists(course_id)) return;
-
     execute("INSERT INTO enrollments VALUES('" + student_id + "','" + course_id + "');");
 }
 
-// ---------------- ATTENDANCE (NEW GUI BASED) ----------------
-
-// void Database::markAttendance(const std::string& student_id,
-//                              const std::string& course_id,
-//                              int day,
-//                              int present)
-//
-// {
-//     execute("INSERT INTO attendance VALUES('" + student_id + "','" +
-//             course_id + "'," + std::to_string(day) + "," +
-//             std::to_string(present) + ");");
-// }
 void Database::markAttendance(const std::string& course_id, int day) {
     std::string sql = "SELECT student_id FROM enrollments WHERE course_id='" + course_id + "';";
     sqlite3_stmt* stmt;
-
     sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, NULL);
 
     while (sqlite3_step(stmt) == SQLITE_ROW) {
         std::string sid = (const char*)sqlite3_column_text(stmt, 0);
 
-        int p;
-        std::cout << "Student " << sid << " (1=Present,0=Absent): ";
-        std::cin >> p;
+        // Qt GUI input so the terminal doesn't freeze
+        QString prompt = QString("Student %1\nEnter 1 for Present, 0 for Absent:").arg(sid.c_str());
+        int p = QInputDialog::getInt(nullptr, "Mark Attendance", prompt, 1, 0, 1);
 
         execute("INSERT INTO attendance VALUES('" + sid + "','" + course_id + "'," +
                 std::to_string(day) + "," + std::to_string(p) + ");");
     }
-
     sqlite3_finalize(stmt);
 }
-
-// ---------------- MARKS (NEW GUI BASED) ----------------
-
-// void Database::setMarks(const std::string& student_id,
-//                         const std::string& course_id,
-//                         int marks)
-// {
-//     execute("INSERT OR REPLACE INTO marks VALUES('" +
-//             student_id + "','" + course_id + "'," +
-//             std::to_string(marks) + ");");
-// }
 
 void Database::addMarks(const std::string& course_id) {
     std::string sql = "SELECT student_id FROM enrollments WHERE course_id='" + course_id + "';";
     sqlite3_stmt* stmt;
-
     sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, NULL);
 
     while (sqlite3_step(stmt) == SQLITE_ROW) {
         std::string sid = (const char*)sqlite3_column_text(stmt, 0);
 
-        int m;
-        std::cout << "Marks for " << sid << ": ";
-        std::cin >> m;
+        // Qt GUI input so the terminal doesn't freeze
+        QString prompt = QString("Enter Marks (0-100) for student %1:").arg(sid.c_str());
+        int m = QInputDialog::getInt(nullptr, "Add Marks", prompt, 0, 0, 100);
 
         execute("INSERT OR REPLACE INTO marks VALUES('" + sid + "','" + course_id + "'," +
                 std::to_string(m) + ");");
     }
-
     sqlite3_finalize(stmt);
 }
 
-// ---------------- VIEW STUDENTS ----------------
-
-void Database::viewStudentsInCourse(const std::string& course_id) {
-    std::string sql =
-        "SELECT s.id, s.name FROM students s "
-        "JOIN enrollments e ON s.id = e.student_id "
-        "WHERE e.course_id='" + course_id + "';";
-
+std::string Database::viewStudentsInCourse(const std::string& course_id) {
+    std::string sql = "SELECT s.id, s.name FROM students s JOIN enrollments e ON s.id = e.student_id WHERE e.course_id='" + course_id + "';";
     sqlite3_stmt* stmt;
     sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, NULL);
 
-    std::cout << "\n--- Students in Course ---\n";
-
+    std::string result = "--- Students in Course ---\n\n";
+    bool found = false;
     while (sqlite3_step(stmt) == SQLITE_ROW) {
-        std::cout << "ID: " << sqlite3_column_text(stmt, 0)
-        << " Name: " << sqlite3_column_text(stmt, 1) << "\n";
+        found = true;
+        result += "ID: " + std::string((const char*)sqlite3_column_text(stmt, 0)) +
+                  "  |  Name: " + std::string((const char*)sqlite3_column_text(stmt, 1)) + "\n";
     }
-
     sqlite3_finalize(stmt);
+    if (!found) return "No students enrolled yet.";
+    return result;
 }
 
-// ---------------- STUDENT ATTENDANCE ----------------
-
-void Database::viewStudentAttendance(const std::string& student_id) {
-    std::string sql =
-        "SELECT c.course_id, c.total_classes, COUNT(a.present), SUM(a.present) "
-        "FROM courses c "
-        "LEFT JOIN attendance a ON c.course_id = a.course_id AND a.student_id='" + student_id + "' "
-                       "JOIN enrollments e ON c.course_id = e.course_id "
-                       "WHERE e.student_id='" + student_id + "' "
-                       "GROUP BY c.course_id;";
-
+std::string Database::viewStudentAttendance(const std::string& student_id) {
+    std::string sql = "SELECT c.course_id, c.total_classes, COUNT(a.present), SUM(a.present) FROM courses c LEFT JOIN attendance a ON c.course_id = a.course_id AND a.student_id='" + student_id + "' JOIN enrollments e ON c.course_id = e.course_id WHERE e.student_id='" + student_id + "' GROUP BY c.course_id;";
     sqlite3_stmt* stmt;
     sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, NULL);
 
-    std::cout << "\n--- Attendance ---\n";
-
+    std::string result = "--- Attendance Record ---\n\n";
+    bool found = false;
     while (sqlite3_step(stmt) == SQLITE_ROW) {
+        found = true;
         std::string course = (const char*)sqlite3_column_text(stmt, 0);
-
         int total_classes = sqlite3_column_int(stmt, 1);
         int total_taken = sqlite3_column_int(stmt, 2);
         int present = sqlite3_column_int(stmt, 3);
@@ -468,30 +133,22 @@ void Database::viewStudentAttendance(const std::string& student_id) {
             needed++;
         }
 
-        std::cout << "Course: " << course
-                  << " | Attendance: " << percent
-                  << "% | Need " << needed << " classes for 75%\n";
+        result += "Course: " + course + "\nAttendance: " + std::to_string((int)percent) + "%\nNeed " + std::to_string(needed) + " more classes for 75%\n\n";
     }
-
     sqlite3_finalize(stmt);
+    if(!found) return "No attendance records found.";
+    return result;
 }
 
-// ---------------- REPORT CARD ----------------
-
-void Database::generateReportCard(const std::string& student_id) {
-    std::string sql =
-        "SELECT e.course_id, COUNT(a.present), SUM(a.present), m.marks "
-        "FROM enrollments e "
-        "LEFT JOIN attendance a ON e.student_id=a.student_id AND e.course_id=a.course_id "
-        "LEFT JOIN marks m ON e.student_id=m.student_id AND e.course_id=m.course_id "
-        "WHERE e.student_id='" + student_id + "' GROUP BY e.course_id;";
-
+std::string Database::generateReportCard(const std::string& student_id) {
+    std::string sql = "SELECT e.course_id, COUNT(a.present), SUM(a.present), m.marks FROM enrollments e LEFT JOIN attendance a ON e.student_id=a.student_id AND e.course_id=a.course_id LEFT JOIN marks m ON e.student_id=m.student_id AND e.course_id=m.course_id WHERE e.student_id='" + student_id + "' GROUP BY e.course_id;";
     sqlite3_stmt* stmt;
     sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, NULL);
 
-    std::cout << "\n--- Report Card ---\n";
-
+    std::string result = "--- Official Report Card ---\n\n";
+    bool found = false;
     while (sqlite3_step(stmt) == SQLITE_ROW) {
+        found = true;
         std::string c = (const char*)sqlite3_column_text(stmt, 0);
         int total = sqlite3_column_int(stmt, 1);
         int present = sqlite3_column_int(stmt, 2);
@@ -499,37 +156,27 @@ void Database::generateReportCard(const std::string& student_id) {
 
         float percent = (total == 0) ? 0 : present * 100.0 / total;
 
-        char grade = 'D';
-        if (marks >= 90) grade = 'A';
-        else if (marks >= 75) grade = 'B';
-        else if (marks >= 60) grade = 'C';
+        std::string grade = "D";
+        if (marks >= 90) grade = "A";
+        else if (marks >= 75) grade = "B";
+        else if (marks >= 60) grade = "C";
 
-        std::cout << c
-                  << " | Attendance: " << percent
-                  << "% | Marks: " << marks
-                  << " | Grade: " << grade << "\n";
+        result += c + " | Att: " + std::to_string((int)percent) + "% | Marks: " + std::to_string(marks) + " | Grade: " + grade + "\n";
     }
-
     sqlite3_finalize(stmt);
+    if(!found) return "No records found.";
+    return result;
 }
 
-// ---------------- COURSE REPORT ----------------
-
-void Database::viewCourseReport(const std::string& course_id) {
-    std::string sql =
-        "SELECT s.id, s.name, COUNT(a.present), SUM(a.present), m.marks "
-        "FROM enrollments e "
-        "JOIN students s ON e.student_id = s.id "
-        "LEFT JOIN attendance a ON e.student_id = a.student_id AND e.course_id = a.course_id "
-        "LEFT JOIN marks m ON e.student_id = m.student_id AND e.course_id = m.course_id "
-        "WHERE e.course_id='" + course_id + "' GROUP BY s.id;";
-
+std::string Database::viewCourseReport(const std::string& course_id) {
+    std::string sql = "SELECT s.id, s.name, COUNT(a.present), SUM(a.present), m.marks FROM enrollments e JOIN students s ON e.student_id = s.id LEFT JOIN attendance a ON e.student_id = a.student_id AND e.course_id = a.course_id LEFT JOIN marks m ON e.student_id = m.student_id AND e.course_id = m.course_id WHERE e.course_id='" + course_id + "' GROUP BY s.id;";
     sqlite3_stmt* stmt;
     sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, NULL);
 
-    std::cout << "\n--- Course Report ---\n";
-
+    std::string result = "--- Master Course Report ---\n\n";
+    bool found = false;
     while (sqlite3_step(stmt) == SQLITE_ROW) {
+        found = true;
         std::string id = (const char*)sqlite3_column_text(stmt, 0);
         std::string name = (const char*)sqlite3_column_text(stmt, 1);
 
@@ -539,19 +186,95 @@ void Database::viewCourseReport(const std::string& course_id) {
 
         float percent = (total == 0) ? 0 : present * 100.0 / total;
 
-        char grade = 'D';
-        if (marks >= 90) grade = 'A';
-        else if (marks >= 75) grade = 'B';
-        else if (marks >= 60) grade = 'C';
+        std::string grade = "D";
+        if (marks >= 90) grade = "A";
+        else if (marks >= 75) grade = "B";
+        else if (marks >= 60) grade = "C";
 
-        std::cout << "ID: " << id
-                  << " Name: " << name
-                  << " | Present: " << present
-                  << " | Total: " << total
-                  << " | %: " << percent
-                  << " | Marks: " << marks
-                  << " | Grade: " << grade << "\n";
+        result += "ID: " + id + " | " + name + " | Att: " + std::to_string((int)percent) + "% | Marks: " + std::to_string(marks) + " | Grade: " + grade + "\n";
     }
-
     sqlite3_finalize(stmt);
+    if(!found) return "No records found for this course.";
+    return result;
+}
+
+// --- NEW ADD ONS ---
+
+QStringList Database::getAvailableCourses() {
+    QStringList list;
+    sqlite3_stmt* stmt;
+    sqlite3_prepare_v2(DB, "SELECT course_id FROM courses;", -1, &stmt, NULL);
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        list << (const char*)sqlite3_column_text(stmt, 0);
+    }
+    sqlite3_finalize(stmt);
+    return list;
+}
+
+QStringList Database::getEnrolledCourses(const std::string& student_id) {
+    QStringList list;
+    std::string sql = "SELECT course_id FROM enrollments WHERE student_id='" + student_id + "';";
+    sqlite3_stmt* stmt;
+    sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, NULL);
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        list << (const char*)sqlite3_column_text(stmt, 0);
+    }
+    sqlite3_finalize(stmt);
+    return list;
+}
+
+QString Database::getDayWiseAttendance(const std::string& student_id, const std::string& course_id) {
+    std::string sql = "SELECT day, present FROM attendance WHERE student_id='" + student_id + "' AND course_id='" + course_id + "' ORDER BY day ASC;";
+    sqlite3_stmt* stmt;
+    sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, NULL);
+
+    QString res = "--- Day-wise Record ---\n\n";
+    bool found = false;
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        found = true;
+        int day = sqlite3_column_int(stmt, 0);
+        int present = sqlite3_column_int(stmt, 1);
+        res += "Day " + QString::number(day) + ": " + (present ? "✅ Present" : "❌ Absent") + "\n";
+    }
+    sqlite3_finalize(stmt);
+    return found ? res : "No attendance marked yet.";
+}
+
+std::vector<std::pair<QString, QString>> Database::getStudentsInCourseData(const std::string& course_id) {
+    std::vector<std::pair<QString, QString>> data;
+    std::string sql = "SELECT s.id, s.name FROM students s JOIN enrollments e ON s.id = e.student_id WHERE e.course_id='" + course_id + "';";
+    sqlite3_stmt* stmt;
+    sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, NULL);
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        data.push_back({(const char*)sqlite3_column_text(stmt, 0), (const char*)sqlite3_column_text(stmt, 1)});
+    }
+    sqlite3_finalize(stmt);
+    return data;
+}
+
+std::vector<ReportRow> Database::getCourseReportData(const std::string& course_id) {
+    std::vector<ReportRow> data;
+    std::string sql = "SELECT s.id, s.name, COUNT(a.present), SUM(a.present), m.marks FROM enrollments e JOIN students s ON e.student_id = s.id LEFT JOIN attendance a ON e.student_id = a.student_id AND e.course_id = a.course_id LEFT JOIN marks m ON e.student_id = m.student_id AND e.course_id = m.course_id WHERE e.course_id='" + course_id + "' GROUP BY s.id;";
+    sqlite3_stmt* stmt;
+    sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, NULL);
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        ReportRow row;
+        row.id = (const char*)sqlite3_column_text(stmt, 0);
+        row.name = (const char*)sqlite3_column_text(stmt, 1);
+        int total = sqlite3_column_int(stmt, 2);
+        int present = sqlite3_column_int(stmt, 3);
+        row.marks = sqlite3_column_int(stmt, 4);
+
+        row.attPercent = (total == 0) ? 0 : (present * 100) / total;
+
+        row.grade = "D";
+        if (row.marks >= 90) row.grade = "A";
+        else if (row.marks >= 75) row.grade = "B";
+        else if (row.marks >= 60) row.grade = "C";
+
+        data.push_back(row);
+    }
+    sqlite3_finalize(stmt);
+    return data;
 }

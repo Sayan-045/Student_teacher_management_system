@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include <string>
-#include "Database.h"   // ✅ IMPORTANT
+#include "Database.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class StudentDashboard; }
@@ -18,14 +18,14 @@ public:
     ~StudentDashboard();
 
 private slots:
+    void on_dayWiseBtn_clicked();
     void on_addCourseBtn_clicked();
     void on_viewAttendanceBtn_clicked();
     void on_reportBtn_clicked();
+    void on_logoutBtn_clicked();
 
 private:
     Ui::StudentDashboard *ui;
-
-    // ✅ THESE WERE MISSING
     std::string student_id;
     Database* db;
 };

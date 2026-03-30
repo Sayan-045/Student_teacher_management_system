@@ -1,12 +1,9 @@
 #include "loginwindow.h"
 #include "ui_loginwindow.h"
-#include"Database.h"
 #include <QInputDialog>
-
+#include <QMessageBox>
 #include "studentdashboard.h"
 #include "teacherdashboard.h"
-
-#include <QMessageBox>
 
 LoginWindow::LoginWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -25,44 +22,39 @@ void LoginWindow::on_loginButton_clicked()
     QString role = ui->comboBox->currentText();
     QString id = ui->idEdit->text();
 
-    if(id.isEmpty()){
+    if (id.isEmpty()) {
         QMessageBox::warning(this, "Error", "Enter ID!");
         return;
     }
 
     if (role == "Student") {
-
         std::string sid = id.toStdString();
 
         if (!db.userExists("students", sid)) {
-
-            // Ask for name (SIGNUP)
             bool ok;
             QString name = QInputDialog::getText(this, "Signup",
                                                  "Enter your name:",
                                                  QLineEdit::Normal,
                                                  "", &ok);
-
             if (!ok || name.isEmpty()) return;
 
             db.insertUser("students", sid, name.toStdString());
-
             QMessageBox::information(this, "Success", "Account created!");
         }
 
-        // Open student dashboard
-        StudentDashboard *sd = new StudentDashboard(sid,&db);
+        StudentDashboard *sd = new StudentDashboard(sid, &db);
         sd->show();
         this->close();
     }
     else {
-        if (!db.courseExists(id.toStdString())) {
-            db.addCourse(id.toStdString(), 30);
+        std::string courseId = id.toStdString();
+
+        if (!db.courseExists(courseId)) {
+            db.addCourse(courseId, 30);
         }
 
-        TeacherDashboard *t = new TeacherDashboard(id.toStdString(), &db);
+        TeacherDashboard *t = new TeacherDashboard(courseId, &db);
         t->show();
+        this->close();
     }
-
-    this->close();
 }
