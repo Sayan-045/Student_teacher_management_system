@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include <string>
-#include "Database.h"   // ✅ IMPORTANT
+#include "Database.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class TeacherDashboard; }
@@ -22,11 +22,10 @@ private slots:
     void on_markAttendanceBtn_clicked();
     void on_addMarksBtn_clicked();
     void on_reportBtn_clicked();
+    void on_logoutBtn_clicked();
 
 private:
     Ui::TeacherDashboard *ui;
-
-    // ✅ REQUIRED VARIABLES
     std::string course_id;
     Database* db;
 };

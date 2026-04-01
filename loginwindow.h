@@ -21,8 +21,7 @@ private slots:
 
 private:
     Ui::LoginWindow *ui;
-
-    Database db;   // ✅ VERY IMPORTANT
+    Database db;
 };
 
 #endif // LOGINWINDOW_H
