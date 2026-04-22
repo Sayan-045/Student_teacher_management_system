@@ -2,14 +2,24 @@
 <ui version="4.0">
  <class>TeacherDashboard</class>
  <widget class="QMainWindow" name="TeacherDashboard">
-  <property name="geometry"><rect><x>0</x><y>0</y><width>600</width><height>550</height></rect></property>
-  <property name="windowTitle"><string>Teacher Dashboard</string></property>
-  <property name="styleSheet"><string notr="true">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>550</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Teacher Dashboard</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">
   /* Main Background with a subtle gradient */
   QWidget {
       background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #0b1220, stop:1 #060913);
       color: #e2e8f0;
-      font-family: "Segoe UI", sans-serif;
+      font-family: &quot;Segoe UI&quot;, sans-serif;
   }
 
   /* Elevated Card with a brilliant top highlight */
@@ -66,23 +76,133 @@
       border: 2px solid #3b82f6;
       background-color: #1e293b;
   }
-  </string></property>
-    <widget class="QWidget" name="centralwidget">
-     <layout class="QVBoxLayout" name="mainLayout">
-      <property name="leftMargin"><number>60</number></property><property name="topMargin"><number>40</number></property><property name="rightMargin"><number>60</number></property><property name="bottomMargin"><number>40</number></property>
-      <item><widget class="QLabel" name="headerLabel"><property name="text"><string>Teacher Dashboard</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget></item>
-      <item><widget class="QFrame" name="card">
-        <layout class="QVBoxLayout" name="cardLayout">
-         <property name="spacing"><number>20</number></property><property name="topMargin"><number>30</number></property><property name="bottomMargin"><number>30</number></property><property name="leftMargin"><number>30</number></property><property name="rightMargin"><number>30</number></property>
-         <item><widget class="QPushButton" name="viewStudentsBtn"><property name="text"><string>👥 View Enrolled Students</string></property><property name="cursor"><cursorShape>PointingHandCursor</cursorShape></property></widget></item>
-         <item><widget class="QPushButton" name="markAttendanceBtn"><property name="text"><string>📅 Mark Daily Attendance</string></property><property name="cursor"><cursorShape>PointingHandCursor</cursorShape></property></widget></item>
-         <item><widget class="QPushButton" name="addMarksBtn"><property name="text"><string>📝 Add/Update Marks</string></property><property name="cursor"><cursorShape>PointingHandCursor</cursorShape></property></widget></item>
-         <item><widget class="QPushButton" name="reportBtn"><property name="text"><string>📊 View Course Report</string></property><property name="cursor"><cursorShape>PointingHandCursor</cursorShape></property></widget></item>
-         <item><widget class="QPushButton" name="logoutBtn"><property name="text"><string>🚪 Logout</string></property><property name="cursor"><cursorShape>PointingHandCursor</cursorShape></property></widget></item>
-        </layout></widget></item>
-      <item><spacer name="verticalSpacer"><property name="orientation"><enum>Qt::Vertical</enum></property><property name="sizeHint"><size><width>20</width><height>40</height></size></property></spacer></item>
-     </layout>
-    </widget>
-   </widget>
-   <resources/><connections/>
-  </ui>
+  </string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="mainLayout">
+    <property name="leftMargin">
+     <number>60</number>
+    </property>
+    <property name="topMargin">
+     <number>40</number>
+    </property>
+    <property name="rightMargin">
+     <number>60</number>
+    </property>
+    <property name="bottomMargin">
+     <number>40</number>
+    </property>
+    <item>
+     <widget class="QLabel" name="headerLabel">
+      <property name="text">
+       <string>Teacher Dashboard</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignmentFlag::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QFrame" name="card">
+      <layout class="QVBoxLayout" name="cardLayout">
+       <property name="spacing">
+        <number>20</number>
+       </property>
+       <property name="leftMargin">
+        <number>30</number>
+       </property>
+       <property name="topMargin">
+        <number>30</number>
+       </property>
+       <property name="rightMargin">
+        <number>30</number>
+       </property>
+       <property name="bottomMargin">
+        <number>30</number>
+       </property>
+       <item>
+        <widget class="QPushButton" name="viewStudentsBtn">
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <property name="text">
+          <string>👥 View Enrolled Students</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="markAttendanceBtn">
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <property name="text">
+          <string>📅 Mark Daily Attendance</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="updateAttendanceBtn">
+         <property name="text">
+          <string>📒  Update Attendance</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="addMarksBtn">
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <property name="text">
+          <string>📝 Add/Update Marks</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="reportBtn">
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <property name="text">
+          <string>📊 View Course Report</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="resetPasswordBtn">
+         <property name="text">
+          <string>🔓 Reset Password</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="logoutBtn">
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <property name="text">
+          <string>🚪 Logout</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Orientation::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>40</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
