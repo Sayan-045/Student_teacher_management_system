@@ -9,8 +9,7 @@ Database::Database() {
     execute("CREATE TABLE IF NOT EXISTS courses(course_id TEXT PRIMARY KEY, total_classes INT, password TEXT);");
     execute("CREATE TABLE IF NOT EXISTS enrollments(student_id TEXT, course_id TEXT);");
     execute("CREATE TABLE IF NOT EXISTS attendance(student_id TEXT, course_id TEXT, day INT, present INT);");
-    execute("CREATE TABLE IF NOT EXISTS marks(student_id TEXT, course_id TEXT, marks INT);");
-}
+    execute("CREATE TABLE IF NOT EXISTS marks(student_id TEXT, course_id TEXT, marks INT, UNIQUE(student_id, course_id));");}
 
 Database::~Database() {
     sqlite3_close(DB);
@@ -128,17 +127,21 @@ bool Database::addMarks(const std::string& course_id) {
         std::string sid = (const char*)sqlite3_column_text(stmt, 0);
 
         bool ok;
-        QString prompt = QString("Enter Marks (0-100) for student %1:").arg(sid.c_str());
+        QString prompt = QString("Student: %1\nEnter Final Total Marks (0-100):").arg(sid.c_str());
 
-        int m = QInputDialog::getInt(nullptr, "Add Marks", prompt, 0, 0, 100, 1, &ok);
+        int m = QInputDialog::getInt(nullptr, "Set Final Marks", prompt, 0, 0, 100, 1, &ok);
 
         if (!ok) {
             sqlite3_finalize(stmt);
             return false;
         }
 
-        execute("INSERT OR REPLACE INTO marks VALUES('" + sid + "','" + course_id + "'," +
-                std::to_string(m) + ");");
+        std::string deleteSql = "DELETE FROM marks WHERE student_id='" + sid + "' AND course_id='" + course_id + "';";
+        execute(deleteSql);
+
+        std::string insertSql = "INSERT INTO marks VALUES('" + sid + "','" + course_id + "'," + std::to_string(m) + ");";
+        execute(insertSql);
+
         success = true;
     }
     sqlite3_finalize(stmt);
