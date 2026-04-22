@@ -23,6 +23,8 @@ private slots:
     void on_addMarksBtn_clicked();
     void on_reportBtn_clicked();
     void on_logoutBtn_clicked();
+    void on_resetPasswordBtn_clicked();
+    void on_updateAttendanceBtn_clicked();
 
 private:
     Ui::TeacherDashboard *ui;

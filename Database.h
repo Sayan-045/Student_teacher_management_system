@@ -25,15 +25,23 @@ public:
     bool execute(const std::string& sql);
 
     bool userExists(const std::string& table, const std::string& id);
-    void insertUser(const std::string& table, const std::string& id, const std::string& name);
+    void insertUser(const std::string& table, const std::string& id, const std::string& name, const std::string& password);
 
     bool courseExists(const std::string& course_id);
-    void addCourse(const std::string& course_id, int total_classes);
+    void addCourse(const std::string& course_id, int total_classes, const std::string& password);
 
-    void enrollStudent(const std::string& student_id, const std::string& course_id);
+    bool checkPassword(const std::string& table, const std::string& idCol, const std::string& id, const std::string& password);
+    void updatePassword(const std::string& table, const std::string& idCol, const std::string& id, const std::string& newPassword);
 
-    void markAttendance(const std::string& course_id, int day);
-    void addMarks(const std::string& course_id);
+    bool enrollStudent(const std::string& student_id, const std::string& course_id);
+    bool isEnrolled(const std::string& student_id, const std::string& course_id);
+
+    bool markAttendance(const std::string& course_id, int day);
+    bool addMarks(const std::string& course_id);
+
+    int getCurrentDay(const std::string& course_id);
+    bool updateSpecificAttendance(const std::string& course_id, int day, const std::string& student_id, int present);
+
 
     QStringList getAvailableCourses();
     QStringList getEnrolledCourses(const std::string& student_id);

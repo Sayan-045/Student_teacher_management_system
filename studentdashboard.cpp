@@ -19,23 +19,24 @@ StudentDashboard::~StudentDashboard()
 
 void StudentDashboard::on_addCourseBtn_clicked()
 {
-    QStringList courses = db->getAvailableCourses();
+    QStringList courses = db->getAvailableCourses(); //
     if (courses.isEmpty()) {
         QMessageBox::information(this, "Empty", "No courses available to register right now.");
         return;
     }
 
     bool ok;
-    // This creates a beautiful dropdown menu!
     QString selected = QInputDialog::getItem(this, "Register", "Select a Course:", courses, 0, false, &ok);
 
     if (ok && !selected.isEmpty()) {
-        db->enrollStudent(student_id, selected.toStdString());
-        QMessageBox::information(this, "Success", "Registered for " + selected + "!");
+        if (db->enrollStudent(student_id, selected.toStdString())) {
+            QMessageBox::information(this, "Success", "Registered for " + selected + "!");
+        } else {
+            QMessageBox::warning(this, "Notice", "You have already registered for " + selected + "!");
+        }
     }
 }
 
-// Add this new function
 void StudentDashboard::on_dayWiseBtn_clicked()
 {
     QStringList courses = db->getEnrolledCourses(student_id);
@@ -67,10 +68,8 @@ void StudentDashboard::on_reportBtn_clicked()
 
 void StudentDashboard::on_logoutBtn_clicked()
 {
-    // Create a new login window
     LoginWindow *login = new LoginWindow();
     login->show();
 
-    // Close the current dashboard
     this->close();
 }

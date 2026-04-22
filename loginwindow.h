@@ -18,6 +18,7 @@ public:
 
 private slots:
     void on_loginButton_clicked();
+    void on_resetButton_clicked();
 
 private:
     Ui::LoginWindow *ui;
